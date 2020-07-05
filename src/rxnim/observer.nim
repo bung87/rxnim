@@ -1,19 +1,23 @@
 type 
+  
   NextHandle[T] = proc (value:T): void
-  ErrorHandle = proc (error:Exception) : void
+  ErrorHandle = proc (error:ref Exception) : void
   CompletedHandle = proc ():void
   Observer*[T] = ref object of RootObj
-    onNext: NextHandle[T]
+    onNext: NextHandle[any]
     onError: ErrorHandle
     onCompleted:CompletedHandle
 
 proc dispose*[T](self:Observer[T]):void =
   self.onNext = proc (value:T): void = discard
-  self.onError = proc (error:Exception) : void = discard
+  self.onError = proc (error:ref Exception) : void = discard
   self.onCompleted = proc ():void = discard
 
-proc next*[T](self:Observer[T],value:T):void = 
+proc next*[T](self:Observer[T],value:any):void = 
   self.onNext(value)
+
+proc error*[T](self:Observer[T],err:ref Exception):void = 
+  self.onError(err)
 
 proc complete*[T](self:Observer[T]):void =
   self.onCompleted()
